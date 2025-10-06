@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu Bot EDXZ</title>
+<style>
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #141E30, #243B55);
+  color: white;
+  margin: 0; padding: 0; text-align: center;
+}
+header {
+  background: rgba(0,0,0,0.6);
+  padding: 20px;
+  font-size: 1.4em;
+  font-weight: bold;
+  border-bottom: 2px solid gold;
+}
+.menu {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+  margin: 30px auto;
+  max-width: 600px;
+  padding: 20px;
+}
+.card {
+  background: rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.5);
+  cursor: pointer;
+  transition: 0.3s;
+}
+.card:hover {
+  background: rgba(255,215,0,0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 0 18px gold;
+}
+.card h3 { margin: 10px 0 0 0; font-size:1.1em; }
+.card span { font-size: 2em; }
+.stok { margin-top:5px; font-size:0.9em; color: gold; }
+footer { margin-top:50px; padding:15px; font-size:1em; background: rgba(0,0,0,0.4); border-top:2px solid gold; }
+.admin-btns { margin:20px auto; }
+.admin-btns button {
+  margin:10px; padding:12px 20px; border:none; border-radius:8px;
+  background:crimson; color:white; font-size:1em; cursor:pointer; transition:0.3s;
+}
+.admin-btns button:hover { background: darkred; }
+.modal {
+  display:none; position:fixed; z-index:999; left:0; top:0;
+  width:100%; height:100%; background: rgba(0,0,0,0.7);
+}
+.modal-content {
+  background:#1e2a38; padding:20px; border-radius:10px;
+  margin:10% auto; width:90%; max-width:400px; color:white;
+  text-align:center; box-shadow:0 0 15px gold;
+}
+.modal-content select,
+.modal-content input { width:90%; padding:8px; margin:10px 0; border-radius:6px; border:none;}
+.modal-content button { margin-top:10px; padding:10px 20px; border:none; border-radius:6px; background:gold; font-weight:bold; cursor:pointer;}
+.modal-content button:hover { background:orange; }
+#toastContainer { position:fixed; bottom:20px; right:20px; z-index:1000;}
+.toast { background: rgba(0,0,0,0.8); color:white; padding:12px 20px; margin-top:10px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.5); animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+@keyframes fadein { from{opacity:0; transform:translateX(50px);} to{opacity:1; transform:translateX(0);} }
+@keyframes fadeout { from{opacity:1; transform:translateX(0);} to{opacity:0; transform:translateX(50px);} }
+</style>
+</head>
+<body>
+
+<header>👑 Welcome to menu bot wa (semuanya free) 👑</header>
+
+<div class="menu" id="menuList">
+  <div class="card" onclick="order('ADDPREM')"><span>⭐</span><h3>• ADDPREM</h3><p>(Kalo beruntung)</p><div class="stok" id="stok-ADDPREM">Stok: 10</div></div>
+  <div class="card" onclick="order('addlimit')"><span>➕</span><h3>• addlimit</h3><p>(Random)</p><div class="stok" id="stok-addlimit">Stok: 20</div></div>
+  <div class="card" onclick="order('addlevel')"><span>📈</span><h3>• addlevel</h3><p>(Random)</p><div class="stok" id="stok-addlevel">Stok: 15</div></div>
+  <div class="card" onclick="order('addmoney')"><span>💰</span><h3>• add money</h3><div class="stok" id="stok-addmoney">Stok: 12</div></div>
+  <div class="card" onclick="openSewaBotModal()"><span>🤖</span><h3>• Sewa Bot</h3><div class="stok" id="stok-sewabot">Stok: 5</div></div>
+  <div class="card" onclick="openPanelModal()"><span>🖥️</span><h3>• Panel</h3><div class="stok" id="stok-panel">Stok: ∞</div></div>
+</div>
+
+<div class="admin-btns">
+  <button onclick="openModal('restok')">RESTOK MENU</button>
+  <button onclick="openModal('habis')">KURANGI MENU</button>
+</div>
+
+<footer>Power by 👑Edi ganteng👑</footer>
+
+<!-- Modal Restok/Habis -->
+<div id="stokModal" class="modal">
+  <div class="modal-content">
+    <h2 id="modalTitle">Kelola Stok</h2>
+    <select id="menuSelect">
+      <option value="ADDPREM">ADDPREM</option>
+      <option value="addlimit">addlimit</option>
+      <option value="addlevel">addlevel</option>
+      <option value="addmoney">addmoney</option>
+      <option value="sewabot">sewabot</option>
+    </select>
+    <input type="number" id="jumlahInput" placeholder="Jumlah">
+    <button onclick="submitStok()">Simpan</button>
+    <button onclick="closeModal()">Batal</button>
+  </div>
+</div>
+
+<!-- Modal SewaBot -->
+<div id="sewaBotModal" class="modal">
+  <div class="modal-content">
+    <h2>🛠 Pilih cara sewa bot</h2>
+    <input type="text" id="grupLinkInput" placeholder="Masukkan link grup">
+    <button onclick="sewaOption('link')">🔗 Masukin Link Grup</button>
+    <button onclick="sewaOption('own')">👑 Dibikinin Own Ganteng</button>
+    <br><br>
+    <button onclick="closeSewaBotModal()">Batal</button>
+  </div>
+</div>
+
+<!-- Modal Panel -->
+<div id="panelModal" class="modal">
+  <div class="modal-content">
+    <h2>🛠 Buat Panel Baru</h2>
+    <input type="text" id="panelNameInput" placeholder="Masukkan nama panel">
+    <button onclick="createPanel()">Buat Panel</button>
+    <br><br>
+    <button onclick="closePanelModal()">Batal</button>
+  </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script>
+const PASSWORD = "EDXZMENUBOT";
+let attempts = 3;
+let stok = {ADDPREM:10, addlimit:20, addlevel:15, addmoney:12, sewabot:5};
+let currentAction="";
+
+function updateStok(){
+  for(let k in stok){let el=document.getElementById("stok-"+k); if(el) el.innerText="Stok: "+stok[k];}
+}
+updateStok();
+
+function order(menu){
+  if(stok[menu]>0){
+    stok[menu]--; updateStok();
+    redirectWa("Saya pilih "+menu+" (sisa stok "+stok[menu]+")");
+  } else alert("Stok habis untuk menu: "+menu);
+}
+
+function redirectWa(msg){ window.location.href="https://wa.me/6285142040816?text="+encodeURIComponent("Halo bang, "+msg); }
+
+function openModal(action){
+  let pass=prompt("Masukkan password:");
+  if(pass===PASSWORD){ currentAction=action;
+    document.getElementById("modalTitle").innerText=action==="restok"?"Tambah Stok":"Kurangi Stok";
+    document.getElementById("stokModal").style.display="block";
+  }else{ attempts--; alert("Password salah! Sisa percobaan: "+attempts);}
+}
+
+function closeModal(){ document.getElementById("stokModal").style.display="none"; document.getElementById("jumlahInput").value=""; }
+
+function submitStok(){
+  let menu=document.getElementById("menuSelect").value;
+  let jumlah=parseInt(document.getElementById("jumlahInput").value);
+  if(!isNaN(jumlah)&&jumlah>0){
+    if(currentAction==="restok"){ stok[menu]+=jumlah; showToast(menu+" berhasil ditambah "+jumlah); }
+    else if(currentAction==="habis"){
+      if(stok[menu]>=jumlah){ stok[menu]-=jumlah; showToast(menu+" berhasil dikurangi "+jumlah);}
+      else showToast("Stok "+menu+" tidak cukup!");
+    }
+    updateStok(); closeModal();
+  }else showToast("Jumlah tidak valid.");
+}
+
+function showToast(msg){ let t=document.createElement("div"); t.className="toast"; t.innerText=msg; document.getElementById("toastContainer").appendChild(t); setTimeout(()=>t.remove(),3000);}
+
+// Sewa Bot
+function openSewaBotModal(){ if(stok.sewabot>0){ document.getElementById("sewaBotModal").style.display="block"; document.getElementById("grupLinkInput").value=""; } else alert("Stok Sewa Bot habis!"); }
+function closeSewaBotModal(){ document.getElementById("sewaBotModal").style.display="none"; }
+function sewaOption(type){
+  if(stok.sewabot<=0){ alert("Stok habis!"); closeSewaBotModal(); return;}
+  if(type==="link"){
+    let link=document.getElementById("grupLinkInput").value.trim();
+    if(!link){ alert("Harap isi link grup terlebih dahulu!"); return;}
+    stok.sewabot--; updateStok();
+    redirectWa("Saya sewa bot, link grup: "+link+" (sisa stok "+stok.sewabot+")");
+  } else {
+    stok.sewabot--; updateStok();
+    redirectWa("Saya sewa bot, dibikinin own ganteng (sisa stok "+stok.sewabot+")");
+  }
+  closeSewaBotModal();
+}
+
+// Panel
+function openPanelModal(){ document.getElementById("panelModal").style.display="block"; document.getElementById("panelNameInput").value=""; }
+function closePanelModal(){ document.getElementById("panelModal").style.display="none"; }
+function createPanel(){
+  let name=document.getElementById("panelNameInput").value.trim();
+  if(!name){ alert("Harap isi nama panel!"); return;}
+  let ram=Math.floor(Math.random()*16)+1;
+  redirectWa("Saya buat panel, nama: "+name+", RAM: "+ram+"GB");
+  closePanelModal();
+}
+
+// Tutup modal klik luar
+window.onclick=function(e){
+  if(e.target.id==="stokModal") closeModal();
+  if(e.target.id==="sewaBotModal") closeSewaBotModal();
+  if(e.target.id==="panelModal") closePanelModal();
+}
+</script>
+
+</body>
+</html>
